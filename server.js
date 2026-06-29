@@ -1,0 +1,54 @@
+import express from "express";
+import sqlite3 from "sqlite3";
+import { open } from "sqlite";
+
+// --- Database setup (async) ---
+const db = await open({
+  filename: "users.db",
+  driver: sqlite3.Database,
+});
+await db.exec(`CREATE TABLE IF NOT EXISTS users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  course TEXT NOT NULL
+)`);
+
+// --- App setup ---
+const app = express();
+app.use(express.json());        // read JSON request bodies
+app.use(express.static("public")); // serve the HTML/CSS/JS
+
+// Get all users
+app.get("/api/users", async (req, res) => {
+  const users = await db.all("SELECT * FROM users");
+  console.log(users);
+  res.json(users);
+});
+
+// Get users by course (class)
+app.get("/api/users/:course", async (req, res) => {
+  const users = await db.all("SELECT * FROM users WHERE course = ? COLLATE NOCASE", req.params.course.toUpperCase());
+  res.json(users);
+});
+
+// Create a user
+app.post("/api/users", async (req, res) => {
+  console.log(req.body);
+  const { name, course } = req.body;
+  const result = await db.run("INSERT INTO users (name, course) VALUES (?, ?)", name, course);
+  res.json({ id: result.lastID, name, course });
+});
+
+// Edit a user's course
+app.put("/api/users/:id", async (req, res) => {
+  await db.run("UPDATE users SET course = ? WHERE id = ?", req.body.course, req.params.id);
+  res.json({ ok: true });
+});
+
+// Delete a user
+app.delete("/api/users/:id", async (req, res) => {
+  await db.run("DELETE FROM users WHERE id = ?", req.params.id);
+  res.json({ ok: true });
+});
+
+app.listen(3000, () => console.log("Running on http://localhost:3000"));
