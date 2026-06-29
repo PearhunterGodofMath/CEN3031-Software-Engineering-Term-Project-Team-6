@@ -1,0 +1,27 @@
+body {
+  max-width: 500px;
+  margin: 40px auto;
+}
+
+form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+input {
+  flex: 1;
+  padding: 6px;
+}
+
+li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid #ddd;
+}
+
+li span {
+  flex: 1;
+}
