@@ -67,4 +67,16 @@ app.post("/api/appliance", async (req, res) => {
   res.json({ name, wattage, hour_usage, usage_date});
 });
 
+// Edit appliance
+app.put("/api/appliance/:name/:wattage/:usage_date", async (req, res) => {
+  await db.run("UPDATE appliance SET wattage = ?, usage_date = ? WHERE name = ?", req.params.wattage, req.params.usage_date, req.params.name);
+  res.json({ ok: true });
+});
+
+// Delete appliance
+app.delete("/api/appliance/:name", async (req, res) => {
+  await db.run("DELETE FROM appliance WHERE name = ?", req.params.name);
+  res.json({ ok: true });
+});
+
 app.listen(3000, () => console.log("Running on http://localhost:3000"));
