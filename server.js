@@ -7,10 +7,18 @@ const db = await open({
   filename: "users.db",
   driver: sqlite3.Database,
 });
+// --- Add USER table ---
 await db.exec(`CREATE TABLE IF NOT EXISTS users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT NOT NULL,
   course TEXT NOT NULL
+)`);
+// --- Add APPLIANCE table ---
+await db.exec(`CREATE TABLE IF NOT EXISTS appliance (
+  name TEXT PRIMARY KEY NOT NULL,
+  wattage INTEGER,
+  hour_usage INTEGER,
+  usage_date DATE
 )`);
 
 // --- App setup ---
@@ -48,6 +56,26 @@ app.put("/api/users/:id", async (req, res) => {
 // Delete a user
 app.delete("/api/users/:id", async (req, res) => {
   await db.run("DELETE FROM users WHERE id = ?", req.params.id);
+  res.json({ ok: true });
+});
+
+// Add appliance
+app.post("/api/appliance", async (req, res) => {
+  console.log(req.body);
+  const { name, wattage, hour_usage, usage_date } = req.body;
+  const result = await db.run("INSERT INTO appliance (name, wattage, hour_usage, usage_date) VALUES (?, ?, ?, ?)", name, wattage, hour_usage, usage_date);
+  res.json({ name, wattage, hour_usage, usage_date});
+});
+
+// Edit appliance
+app.put("/api/appliance/:name/:wattage/:usage_date", async (req, res) => {
+  await db.run("UPDATE appliance SET wattage = ?, usage_date = ? WHERE name = ?", req.params.wattage, req.params.usage_date, req.params.name);
+  res.json({ ok: true });
+});
+
+// Delete appliance
+app.delete("/api/appliance/:name", async (req, res) => {
+  await db.run("DELETE FROM appliance WHERE name = ?", req.params.name);
   res.json({ ok: true });
 });
 
