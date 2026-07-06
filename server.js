@@ -41,11 +41,27 @@ app.get("/api/users/:course", async (req, res) => {
 
 // Create a user
 app.post("/api/users", async (req, res) => {
-  console.log(req.body);
-  const { name, course } = req.body;
-  const result = await db.run("INSERT INTO users (name, course) VALUES (?, ?)", name, course);
-  res.json({ id: result.lastID, name, course });
+  const { username, password } = req.body;
+  const result = await db.run('INSERT INTO users (username, password) VALUES (?, ?)', username, password);
+  res.json({ id: result.lastID, username, message: 'Account created' });
+  });
+
+//login
+app.post("/api/login", async (req, res) => {
+  const { username, password } = req.body;
+  const user = await db.get('SELECT * FROM users WHERE username = ? AND password = ?', username, password);
+  if (passwordIncorrect) {
+    return res.json({ success: false, message: "Invalid credentials" });
+  }
+  res.json({ success: true, message: "Welcome!" });
 });
+
+// app.post("/api/users", async (req, res) => {
+//   console.log(req.body);
+//   const { name, course } = req.body;
+//   const result = await db.run("INSERT INTO users (name, course) VALUES (?, ?)", name, course);
+//   res.json({ id: result.lastID, name, course });
+// });
 
 // Edit a user's course
 app.put("/api/users/:id", async (req, res) => {

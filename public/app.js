@@ -25,18 +25,56 @@ async function load(course) {
 // 2. Create a user
 document.getElementById("add-form").onsubmit = async (e) => {
   e.preventDefault();
-  const name = document.getElementById("name").value;
-  const course = document.getElementById("course").value;
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
 
-  await fetch("/api/users", {
+  const response = await fetch("/api/users", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name, course }),
+    body: JSON.stringify({ username, password }),
   });
+
+  if (!response.ok) return alert("Account creation failed");
 
   e.target.reset();
   load();
 };
+
+// 3. login
+document.getElementById("login-form").onsubmit = async (e) => {
+  e.preventDefault();
+  const username = document.getElementById("login-username").value;
+  const password = document.getElementById("login-password").value;
+
+  const response = await fetch("/api/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, password }),
+  });
+
+  if (!response.ok) return alert("Login failed!");
+
+  const data = await response.json();
+  alert(data.message);
+  sessionStorage.setItem("userId", data.userId);
+  
+  e.target.reset();
+};
+
+// document.getElementById("add-form").onsubmit = async (e) => {
+//   e.preventDefault();
+//   const name = document.getElementById("name").value;
+//   const course = document.getElementById("course").value;
+
+//   await fetch("/api/users", {
+//     method: "POST",
+//     headers: { "Content-Type": "application/json" },
+//     body: JSON.stringify({ name, course }),
+//   });
+
+//   e.target.reset();
+//   load();
+// };
 
 // Edit a user's course
 async function editUser(id) {
