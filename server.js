@@ -95,9 +95,15 @@ app.get("/api/appliance", async (req, res) => {
   res.json(appliances);
 });
 
-// Get appliance info within date range
+// Get ALL appliance info within date range
 app.get("/api/appliance/:start_date/:end_date", async (req, res) => {
   const appliances = await db.all("SELECT * FROM appliance WHERE usage_date BETWEEN ? AND ?", req.params.start_date, req.params.end_date);
+  res.json(appliances);
+});
+
+// Get SPECIFIC appliance info within date range
+app.get("/api/appliance/:name/:start_date/:end_date", async (req, res) => {
+  const appliances = await db.all("SELECT * FROM appliance WHERE name = ? AND usage_date BETWEEN ? AND ?", req.params.name, req.params.start_date, req.params.end_date);
   res.json(appliances);
 });
 
