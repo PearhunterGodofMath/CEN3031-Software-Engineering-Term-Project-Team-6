@@ -9,9 +9,9 @@ const db = await open({
 });
 // --- Add USER table ---
 await db.exec(`CREATE TABLE IF NOT EXISTS users (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  name TEXT NOT NULL,
-  course TEXT NOT NULL
+  username TEXT PRIMARY KEY,
+  password TEXT NOT NULL,
+  electricity_price FLOAT NOT NULL
 )`);
 // --- Add APPLIANCE table ---
 await db.exec(`CREATE TABLE IF NOT EXISTS appliance (
@@ -63,7 +63,7 @@ app.post("/api/login", async (req, res) => {
 //   res.json({ id: result.lastID, name, course });
 // });
 
-// Edit a user's course
+// Edit a user's electricity price
 app.put("/api/users/:id", async (req, res) => {
   await db.run("UPDATE users SET course = ? WHERE id = ?", req.body.course, req.params.id);
   res.json({ ok: true });
@@ -87,6 +87,18 @@ app.post("/api/appliance", async (req, res) => {
 app.put("/api/appliance/:name/:wattage/:usage_date", async (req, res) => {
   await db.run("UPDATE appliance SET wattage = ?, usage_date = ? WHERE name = ?", req.params.wattage, req.params.usage_date, req.params.name);
   res.json({ ok: true });
+});
+
+// Get all appliance info
+app.get("/api/appliance", async (req, res) => {
+  const appliances = await db.all("SELECT * FROM appliance");
+  res.json(appliances);
+});
+
+// Get appliance info within date range
+app.get("/api/appliance/:start_date/:end_date", async (req, res) => {
+  const appliances = await db.all("SELECT * FROM appliance WHERE usage_date BETWEEN ? AND ?", req.params.start_date, req.params.end_date);
+  res.json(appliances);
 });
 
 // Delete appliance
