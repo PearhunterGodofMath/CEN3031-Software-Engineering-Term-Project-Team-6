@@ -1,103 +1,62 @@
-const list = document.getElementById("list");
+// Create Account
+const createAccountForm = document.getElementById("create-account-form");
 
-// 1. Show all users
-document.getElementById("show_all").onclick = () => load();
+if (createAccountForm) {
+  createAccountForm.onsubmit = async (e) => {
+    e.preventDefault();
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+    const confirmPassword = document.getElementById("confirm-password").value;
 
-// Load users from the server and show them
-async function load(course) {
-  const url = course ? `/api/users/${course}` : "/api/users";
-  const res = await fetch(url);
-  const users = await res.json();
+    if (password !== confirmPassword) {
+      return alert("Passwords do not match");
+    }
 
-  list.innerHTML = "";
-  for (const user of users) {
-    const li = document.createElement("li");
-    li.innerHTML = `<span>${user.name}:  ${user.course}</span>
-      <button class="edit">Edit course</button>
-      <button class="delete">Delete</button>`;
+    const response = await fetch("/api/users", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }),
+    });
 
-    li.querySelector(".edit").onclick = () => editUser(user.id);
-    li.querySelector(".delete").onclick = () => deleteUser(user.id);
-    list.appendChild(li);
-  }
+    const data = await response.json();
+
+    if(!response.ok) {
+      return alert(data.message);
+    }
+
+    alert("Account created successfully!");
+
+    window.location.href = "loginScreen.html"; // Redirect to login page after successful account creation
+  };
 }
 
-// 2. Create a user
-document.getElementById("add-form").onsubmit = async (e) => {
-  e.preventDefault();
-  const username = document.getElementById("username").value;
-  const password = document.getElementById("password").value;
+// Login
+const loginForm = document.getElementById("login-form");
 
-  const response = await fetch("/api/users", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username, password }),
-  });
+if (loginForm) {
 
-  if (!response.ok) return alert("Account creation failed");
+  loginForm.onsubmit = async (e) => {
+    e.preventDefault();
+    const username = document.getElementById("login-username").value;
+    const password = document.getElementById("login-password").value;
 
-  e.target.reset();
-  load();
-};
+    const response = await fetch("/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }),
+    });
 
-// 3. login
-document.getElementById("login-form").onsubmit = async (e) => {
-  e.preventDefault();
-  const username = document.getElementById("login-username").value;
-  const password = document.getElementById("login-password").value;
+    const data = await response.json();
 
-  const response = await fetch("/api/login", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username, password }),
-  });
+    const message = document.getElementById("login-message");
 
-  if (!response.ok) return alert("Login failed!");
+    if (!data.success) {
+      message.textContent = "Invalid username or password";
+      return;
+    }
 
-  const data = await response.json();
-  alert(data.message);
-  sessionStorage.setItem("userId", data.userId);
-  
-  e.target.reset();
-};
+    sessionStorage.setItem("userId", data.userId);
 
-// document.getElementById("add-form").onsubmit = async (e) => {
-//   e.preventDefault();
-//   const name = document.getElementById("name").value;
-//   const course = document.getElementById("course").value;
-
-//   await fetch("/api/users", {
-//     method: "POST",
-//     headers: { "Content-Type": "application/json" },
-//     body: JSON.stringify({ name, course }),
-//   });
-
-//   e.target.reset();
-//   load();
-// };
-
-// Edit a user's course
-async function editUser(id) {
-  const course = prompt("New course?");
-  if (!course) return;
-  console.log(course);
-  await fetch(`/api/users/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ course }),
-  });
-  load();
+    window.location.href = "utilitiesTable.html";
+  };
 }
-
-// 4. Delete a user
-async function deleteUser(id) {
-  await fetch(`/api/users/${id}`, { method: "DELETE" });
-  load();
-}
-
-// 5. Search by course
-document.getElementById("search-form").onsubmit = (e) => {
-  e.preventDefault();
-  load(document.getElementById("search").value);
-};
-
