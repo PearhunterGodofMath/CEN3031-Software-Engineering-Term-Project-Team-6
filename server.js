@@ -10,8 +10,8 @@ const db = await open({
 // --- Add USER table ---
 await db.exec(`CREATE TABLE IF NOT EXISTS users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  name TEXT NOT NULL,
-  course TEXT NOT NULL
+  username TEXT NOT NULL UNIQUE,
+  password TEXT NOT NULL
 )`);
 // --- Add APPLIANCE table ---
 await db.exec(`CREATE TABLE IF NOT EXISTS appliance (
@@ -33,12 +33,6 @@ app.get("/api/users", async (req, res) => {
   res.json(users);
 });
 
-// Get users by course (class)
-app.get("/api/users/:course", async (req, res) => {
-  const users = await db.all("SELECT * FROM users WHERE course = ? COLLATE NOCASE", req.params.course.toUpperCase());
-  res.json(users);
-});
-
 // Create a user
 app.post("/api/users", async (req, res) => {
   const { username, password } = req.body;
@@ -50,23 +44,10 @@ app.post("/api/users", async (req, res) => {
 app.post("/api/login", async (req, res) => {
   const { username, password } = req.body;
   const user = await db.get('SELECT * FROM users WHERE username = ? AND password = ?', username, password);
-  if (passwordIncorrect) {
-    return res.json({ success: false, message: "Invalid credentials" });
+  if (!user) {
+    return res.status(401).json({ success: false, message: "Invalid credentials" });
   }
-  res.json({ success: true, message: "Welcome!" });
-});
-
-// app.post("/api/users", async (req, res) => {
-//   console.log(req.body);
-//   const { name, course } = req.body;
-//   const result = await db.run("INSERT INTO users (name, course) VALUES (?, ?)", name, course);
-//   res.json({ id: result.lastID, name, course });
-// });
-
-// Edit a user's course
-app.put("/api/users/:id", async (req, res) => {
-  await db.run("UPDATE users SET course = ? WHERE id = ?", req.body.course, req.params.id);
-  res.json({ ok: true });
+  res.json({ success: true, message: "Welcome!", userId: user.id });
 });
 
 // Delete a user
