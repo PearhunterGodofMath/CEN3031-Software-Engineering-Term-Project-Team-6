@@ -70,6 +70,24 @@ app.put("/api/appliance/:name/:wattage/:usage_date", async (req, res) => {
   res.json({ ok: true });
 });
 
+// Get all appliance info
+app.get("/api/appliance", async (req, res) => {
+  const appliances = await db.all("SELECT * FROM appliance");
+  res.json(appliances);
+});
+
+// Get ALL appliance info within date range
+app.get("/api/appliance/:start_date/:end_date", async (req, res) => {
+  const appliances = await db.all("SELECT * FROM appliance WHERE usage_date BETWEEN ? AND ?", req.params.start_date, req.params.end_date);
+  res.json(appliances);
+});
+
+// Get SPECIFIC appliance info within date range
+app.get("/api/appliance/:name/:start_date/:end_date", async (req, res) => {
+  const appliances = await db.all("SELECT * FROM appliance WHERE name = ? AND usage_date BETWEEN ? AND ?", req.params.name, req.params.start_date, req.params.end_date);
+  res.json(appliances);
+});
+
 // Delete appliance
 app.delete("/api/appliance/:name", async (req, res) => {
   await db.run("DELETE FROM appliance WHERE name = ?", req.params.name);
