@@ -71,8 +71,14 @@ app.put("/api/appliance/:name/:wattage/:usage_date", async (req, res) => {
 });
 
 // Get all appliance info
-app.get("/api/appliance", async (req, res) => {
+app.get("/api/appliance/", async (req, res) => {
   const appliances = await db.all("SELECT * FROM appliance");
+  res.json(appliances);
+});
+
+// Get specific appliance info
+app.get("/api/appliance/:name", async (req, res) => {
+  const appliances = await db.all("SELECT * FROM appliance WHERE name = ?", req.params.name);
   res.json(appliances);
 });
 

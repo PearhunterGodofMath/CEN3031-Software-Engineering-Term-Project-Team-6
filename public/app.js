@@ -60,3 +60,69 @@ if (loginForm) {
     window.location.href = "utilitiesTable.html";
   };
 }
+
+// Add Appliance
+const addApplianceForm = document.getElementById("add-appliance-form");
+
+if(addApplianceForm){
+  addApplianceForm.onsubmit = async(e) => {
+    e.preventDefault();
+
+    const applianceName = document.getElementById("name").value;
+    const applianceWattage = document.getElementById("wattage").value;
+    const applianceHourUse = document.getElementById("hour-usage").value;
+    const applianceUsageDate = document.getElementById("usage-date").value;
+
+    console.log("Submit");
+
+    const response = await fetch("/api/appliance", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({name: applianceName, wattage: applianceWattage, hour_usage: applianceHourUse, usage_date: applianceUsageDate}),
+    });
+
+    const data = await response.json();
+
+    if (!data.success) {
+      console.error("Unable to add appliance");
+      return;
+    }
+
+    console.log("Success");
+  }
+}
+else console.error("No document found");
+
+// Get Appliance
+const getApplianceForm = document.getElementById("get-appliance-form");
+
+if(getApplianceForm){
+  getApplianceForm.onsubmit = async(e) => {
+    e.preventDefault();
+
+    const applianceName = document.getElementById("name").value;
+    const applianceList = document.getElementById("appliance-list");
+    console.log("Submit");
+
+    const url = applianceName ? "/api/appliance/${applianceName}" : "api/appliance";
+    const response = await fetch(url);
+
+    const data = await response.json();
+
+    applianceList.innerHTML = "";
+    for(const d of data){
+      const li = document.createElement("li");
+      li.innerHTML=`<span>${d.name}, ${d.wattage}, ${d.hour_usage}, ${d.usage_date}</span>`;
+
+      applianceList.appendChild(li);
+    }
+
+    if (!data.success) {
+      console.error("Unable to get appliance");
+      return;
+    }
+
+    console.log("Success");
+  }
+}
+else console.error("No document found");
