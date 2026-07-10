@@ -8,8 +8,40 @@
 <body>
   <div class="login-container">
     <h1>UtiliSee</h1>
-    <p>Utilities Table</p>
+    <p>Get Appliance Information</p>
 
+    <form id="get-appliance-form">
+    <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: right; gap: 25px;">
+      <p>Name: </p>
+      <input type="text" id="name" style="height: 10px;">
+      <p>Start Date: </p>
+      <input type="date" id="start-date">
+      <p>End Date: </p>
+      <input type="date" id="end-date">
+    </div>
+    
+    <button type="submit">Get Appliance</button> 
+    </form>
+    <br>
+    <div style="display: flex; gap: 30px;">
+      <p>Current electricity price: </p>
+      <p id="electricity-price"></p>
+    </div>
+      <div style="display: flex; gap: 30px; flex-wrap: wrap;">
+      <input type="number" id="electricity-price-input" placeholder="Set electricity price:">
+      <button id="electricity-price-btn" onclick="SetElectricityPrice()">Submit</button>
+    </div>
+    <div style="display: flex; gap: 30px;">
+      <p>Wattage Average: </p>
+      <p id="wattage-average"></p>
+    </div>
+    <div style="display: flex; gap: 30px;">
+      <p>Cost Average: </p>
+      <p id="cost-average"></p>
+    </div>
+    <ul id="appliance-list"></ul>
+    
+  </div>
   <script src="app.js"></script>
 
 </body>

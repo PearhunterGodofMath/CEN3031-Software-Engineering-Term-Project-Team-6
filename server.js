@@ -11,14 +11,16 @@ const db = await open({
 await db.exec(`CREATE TABLE IF NOT EXISTS users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   username TEXT NOT NULL UNIQUE,
-  password TEXT NOT NULL
+  password TEXT NOT NULL,
+  electricity_price FLOAT NOT NULL
 )`);
 // --- Add APPLIANCE table ---
 await db.exec(`CREATE TABLE IF NOT EXISTS appliance (
-  name TEXT PRIMARY KEY NOT NULL,
+  name TEXT NOT NULL,
   wattage INTEGER,
   hour_usage INTEGER,
   usage_date DATE
+  appliance_id INTEGER PRIMARY KEY AUTOINCREMENT
 )`);
 
 // --- App setup ---
@@ -33,10 +35,17 @@ app.get("/api/users", async (req, res) => {
   res.json(users);
 });
 
+// Get user ID
+app.get("/api/users/:name", async (req, res) => {
+  const users = await db.all("SELECT id FROM users WHERE username = ?", req.params.name);
+  console.log(`User: ${req.params.name}`);
+  res.json(users);
+});
+
 // Create a user
 app.post("/api/users", async (req, res) => {
   const { username, password } = req.body;
-  const result = await db.run('INSERT INTO users (username, password) VALUES (?, ?)', username, password);
+  const result = await db.run('INSERT INTO users (username, password, electricity_price) VALUES (?, ?, ?)', username, password, 0.16);
   res.json({ id: result.lastID, username, message: 'Account created' });
   });
 
@@ -47,12 +56,18 @@ app.post("/api/login", async (req, res) => {
   if (!user) {
     return res.status(401).json({ success: false, message: "Invalid credentials" });
   }
-  res.json({ success: true, message: "Welcome!", userId: user.id });
+  res.json({ success: true, message: "Welcome!", userId: user.id, electricityPrice: user.electricity_price});
 });
 
 // Delete a user
 app.delete("/api/users/:id", async (req, res) => {
   await db.run("DELETE FROM users WHERE id = ?", req.params.id);
+  res.json({ ok: true });
+});
+
+// Set electricity price
+app.put("/api/users/:id/:price", async (req, res) => {
+  await db.run("UPDATE users SET electricity_price = ? WHERE id = ?", req.params.price, req.params.id);
   res.json({ ok: true });
 });
 

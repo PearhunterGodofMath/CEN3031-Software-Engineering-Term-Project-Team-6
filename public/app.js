@@ -56,6 +56,7 @@ if (loginForm) {
     }
 
     sessionStorage.setItem("userId", data.userId);
+    sessionStorage.setItem("electricity_price", data.electricityPrice);
 
     window.location.href = "utilitiesTable.html";
   };
@@ -68,8 +69,14 @@ if(addApplianceForm){
   addApplianceForm.onsubmit = async(e) => {
     e.preventDefault();
 
+    const invalidMenuMessage = document.getElementById("invalid-value-message");
+
     const applianceName = document.getElementById("name").value;
     const applianceWattage = document.getElementById("wattage").value;
+    if(applianceWattage < 0) {
+      invalidMenuMessage.innerHTML = "Wattage must be a positive integer, data not saved";
+      return;
+    }
     const applianceHourUse = document.getElementById("hour-usage").value;
     const applianceUsageDate = document.getElementById("usage-date").value;
 
@@ -91,7 +98,14 @@ if(addApplianceForm){
     console.log("Success");
   }
 }
-else console.error("No document found");
+
+// Set new electricity price
+function SetElectricityPrice(){
+  const electricityPriceInput = document.getElementById("electricity-price-input");
+  var price = electricityPriceInput.value ? electricityPriceInput.value : 0.15;
+  sessionStorage.setItem("electricity_price", price);
+  console.log(`electricityPriceInput: ${price}`);
+}
 
 // Get Appliance
 const getApplianceForm = document.getElementById("get-appliance-form");
@@ -102,27 +116,58 @@ if(getApplianceForm){
 
     const applianceName = document.getElementById("name").value;
     const applianceList = document.getElementById("appliance-list");
+    const startDate = document.getElementById("start-date");
+    const endDate = document.getElementById("end-date");
+    const wattageAverage = document.getElementById("wattage-average");
+    const electricityPrice = document.getElementById("electricity-price");
+    const costAverage = document.getElementById("cost-average");
+    
+    
     console.log("Submit");
 
-    const url = applianceName ? "/api/appliance/${applianceName}" : "api/appliance";
-    const response = await fetch(url);
+    var url = applianceName ? `/api/appliance/${applianceName}` : `api/appliance`;
+    if(startDate.value && endDate.value){
+      url += `/${startDate.value}/${endDate.value}`;
+    }
 
+    console.log(url);
+
+    const response = await fetch(url);
     const data = await response.json();
+    // if (!data.success) {
+    //   console.error("Unable to get appliance");
+    //   return;
+    // }
+
+    // Need to get the ID of the current user
+    const userID = sessionStorage.getItem("userId");
+
+    // Get the electricity price of the current user
+    const electricity_price = sessionStorage.getItem("electricity_price");
+    electricityPrice.innerHTML = electricity_price;
+    console.log(`userID: ${userID}\nelectricityPrice: ${electricity_price}`);
+
+    // Variables for calculating cost average
+    hours = 0;
+    wattageSum = 0;
+    appCount = data.length;
 
     applianceList.innerHTML = "";
+    wattageAverage.innerHTML = "";
     for(const d of data){
       const li = document.createElement("li");
       li.innerHTML=`<span>${d.name}, ${d.wattage}, ${d.hour_usage}, ${d.usage_date}</span>`;
 
       applianceList.appendChild(li);
+      wattageSum += d.wattage;
+      hours += d.hour_usage;
     }
 
-    if (!data.success) {
-      console.error("Unable to get appliance");
-      return;
-    }
+    wattageAverage.innerHTML = `${Math.round(wattageSum / appCount).toString()} W`;
+
+     
+    costAverage.innerHTML = `\$${(hours * (wattageSum * 0.001) * electricity_price).toFixed(2)}`;
 
     console.log("Success");
   }
 }
-else console.error("No document found");
