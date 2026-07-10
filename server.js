@@ -19,8 +19,9 @@ await db.exec(`CREATE TABLE IF NOT EXISTS appliance (
   name TEXT NOT NULL,
   wattage INTEGER,
   hour_usage INTEGER,
-  usage_date DATE
-  appliance_id INTEGER PRIMARY KEY AUTOINCREMENT
+  usage_date DATE,
+  appliance_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER
 )`);
 
 // --- App setup ---
@@ -112,6 +113,18 @@ app.get("/api/appliance/:name/:start_date/:end_date", async (req, res) => {
 // Delete appliance
 app.delete("/api/appliance/:name", async (req, res) => {
   await db.run("DELETE FROM appliance WHERE name = ?", req.params.name);
+  res.json({ ok: true });
+});
+
+// Clear all entries from appliance table
+app.delete("/api/appliance/", async (req, res) => {
+  await db.run("DROP TABLE IF EXISTS appliance");
+  res.json({ ok: true });
+});
+
+// Delete user table
+app.delete("/api/users", async (req, res) => {
+  await db.run("DROP TABLE IF EXISTS users");
   res.json({ ok: true });
 });
 

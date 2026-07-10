@@ -121,6 +121,7 @@ if(getApplianceForm){
     const wattageAverage = document.getElementById("wattage-average");
     const electricityPrice = document.getElementById("electricity-price");
     const costAverage = document.getElementById("cost-average");
+    const dayCostAverage = document.getElementById("day-cost-average");
     
     
     console.log("Submit");
@@ -150,6 +151,8 @@ if(getApplianceForm){
     // Variables for calculating cost average
     hours = 0;
     wattageSum = 0;
+    wattAvg = 0;
+    numDays = 0;
     appCount = data.length;
 
     applianceList.innerHTML = "";
@@ -161,13 +164,29 @@ if(getApplianceForm){
       applianceList.appendChild(li);
       wattageSum += d.wattage;
       hours += d.hour_usage;
+      numDays++;
     }
 
-    wattageAverage.innerHTML = `${Math.round(wattageSum / appCount).toString()} W`;
-
-     
-    costAverage.innerHTML = `\$${(hours * (wattageSum * 0.001) * electricity_price).toFixed(2)}`;
+    wattAvg = Math.round(wattageSum / appCount);
+    wattageAverage.innerHTML = `${wattAvg.toString()} W`;
+    calc = (hours * (wattAvg * 0.001) * electricity_price);
+    costAverage.innerHTML = `\$${calc.toFixed(2)}`;
+    dayCostAverage.innerHTML = `\$${(calc/numDays).toFixed(2)}/day`;
 
     console.log("Success");
   }
+}
+
+// Clear Appliance Table
+async function ClearApplianceTable(){
+  await fetch(`/api/appliance/`, { method: "DELETE" });
+  load();
+  console.log("Clear appliance table");
+}
+
+// Clear Users Table
+async function ClearUsersTable(){
+  await fetch(`/api/users`, { method: "DELETE" });
+  load();
+  console.log("Clear user table");
 }
