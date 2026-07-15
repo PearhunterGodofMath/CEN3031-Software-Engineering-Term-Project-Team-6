@@ -19,6 +19,13 @@ body {
   text-align: center;
 }
 
+.logo {
+  display: block;
+  width: 300px;
+  height: auto;
+  margin: 0 auto 15px;
+}
+
 .login-container h1{
   margin-bottom: 10px;
 }
