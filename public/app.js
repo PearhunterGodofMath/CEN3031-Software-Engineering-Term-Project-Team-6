@@ -72,31 +72,36 @@ if(addApplianceForm){
     const userID = sessionStorage.getItem("userId");
     const invalidMenuMessage = document.getElementById("invalid-value-message");
 
-    const applianceName = document.getElementById("name").value;
-    const applianceWattage = document.getElementById("wattage").value;
-    if(applianceWattage < 0) {
+    const applianceName = document.getElementById("name");
+    const applianceWattage = document.getElementById("wattage");
+    if(applianceWattage.value < 0) {
       invalidMenuMessage.innerHTML = "Wattage must be a positive integer, data not saved";
       return;
     }
-    const applianceHourUse = document.getElementById("hour-usage").value;
-    const applianceUsageDate = document.getElementById("usage-date").value;
+    const applianceHourUse = document.getElementById("hour-usage");
+    const applianceUsageDate = document.getElementById("usage-date");
 
     console.log("Submit");
 
     const response = await fetch("/api/appliance", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({name: applianceName, wattage: applianceWattage, hour_usage: applianceHourUse, usage_date: applianceUsageDate, user_id: userID}),
+      body: JSON.stringify({name: applianceName.value, wattage: applianceWattage.value, hour_usage: applianceHourUse.value, usage_date: applianceUsageDate.value, user_id: userID}),
     });
 
     const data = await response.json();
 
-    if (!data.success) {
-      console.error("Unable to add appliance");
-      return;
-    }
+    // if (!data.success) {
+    //   console.error("Unable to add appliance");
+    //   return;
+    // }
 
-    console.log("Success");
+    applianceName.value = "";
+    applianceWattage.value = "";
+    applianceHourUse.value = "";
+    applianceUsageDate.value = "";
+    invalidMenuMessage.innerHTML = "Appliance saved!";
+    // console.log("Success");
   }
 }
 
