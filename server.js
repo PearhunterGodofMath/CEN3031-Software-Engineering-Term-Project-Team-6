@@ -17,8 +17,8 @@ await db.exec(`CREATE TABLE IF NOT EXISTS users (
 // --- Add APPLIANCE table ---
 await db.exec(`CREATE TABLE IF NOT EXISTS appliance (
   name TEXT NOT NULL,
-  wattage INTEGER,
-  hour_usage INTEGER,
+  wattage INTEGER NOT NULL,
+  hour_usage INTEGER NOT NULL,
   usage_date DATE,
   appliance_id INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id INTEGER
@@ -75,9 +75,9 @@ app.put("/api/users/:id/:price", async (req, res) => {
 // Add appliance
 app.post("/api/appliance", async (req, res) => {
   console.log(req.body);
-  const { name, wattage, hour_usage, usage_date } = req.body;
-  const result = await db.run("INSERT INTO appliance (name, wattage, hour_usage, usage_date) VALUES (?, ?, ?, ?)", name, wattage, hour_usage, usage_date);
-  res.json({ name, wattage, hour_usage, usage_date});
+  const { name, wattage, hour_usage, usage_date , user_id} = req.body;
+  const result = await db.run("INSERT INTO appliance (name, wattage, hour_usage, usage_date, user_id) VALUES (?, ?, ?, ?, ?)", name, wattage, hour_usage, usage_date, user_id);
+  res.json({ name, wattage, hour_usage, usage_date, user_id});
 });
 
 // Edit appliance
@@ -87,26 +87,26 @@ app.put("/api/appliance/:name/:wattage/:usage_date", async (req, res) => {
 });
 
 // Get all appliance info
-app.get("/api/appliance/", async (req, res) => {
-  const appliances = await db.all("SELECT * FROM appliance");
+app.get("/api/appliance/:user_id", async (req, res) => {
+  const appliances = await db.all("SELECT * FROM appliance WHERE user_id = ?", req.params.user_id);
   res.json(appliances);
 });
 
 // Get specific appliance info
-app.get("/api/appliance/:name", async (req, res) => {
-  const appliances = await db.all("SELECT * FROM appliance WHERE name = ?", req.params.name);
+app.get("/api/appliance/:name:/user_id", async (req, res) => {
+  const appliances = await db.all("SELECT * FROM appliance WHERE name = ? AND user_id = ?", req.params.name, req.params.user_id);
   res.json(appliances);
 });
 
 // Get ALL appliance info within date range
-app.get("/api/appliance/:start_date/:end_date", async (req, res) => {
-  const appliances = await db.all("SELECT * FROM appliance WHERE usage_date BETWEEN ? AND ?", req.params.start_date, req.params.end_date);
+app.get("/api/appliance/:start_date/:end_date/:user_id", async (req, res) => {
+  const appliances = await db.all("SELECT * FROM appliance WHERE user_id = ? AND usage_date BETWEEN ? AND ?",req.params.user_id, req.params.start_date, req.params.end_date);
   res.json(appliances);
 });
 
 // Get SPECIFIC appliance info within date range
-app.get("/api/appliance/:name/:start_date/:end_date", async (req, res) => {
-  const appliances = await db.all("SELECT * FROM appliance WHERE name = ? AND usage_date BETWEEN ? AND ?", req.params.name, req.params.start_date, req.params.end_date);
+app.get("/api/appliance/:name/:start_date/:end_date:/user_id", async (req, res) => {
+  const appliances = await db.all("SELECT * FROM appliance WHERE name = ? AND user_id = ? AND usage_date BETWEEN ? AND ?", req.params.name, req.params.user_id, req.params.start_date, req.params.end_date);
   res.json(appliances);
 });
 

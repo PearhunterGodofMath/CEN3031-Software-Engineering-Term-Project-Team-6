@@ -68,7 +68,8 @@ const addApplianceForm = document.getElementById("add-appliance-form");
 if(addApplianceForm){
   addApplianceForm.onsubmit = async(e) => {
     e.preventDefault();
-
+    
+    const userID = sessionStorage.getItem("userId");
     const invalidMenuMessage = document.getElementById("invalid-value-message");
 
     const applianceName = document.getElementById("name").value;
@@ -85,7 +86,7 @@ if(addApplianceForm){
     const response = await fetch("/api/appliance", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({name: applianceName, wattage: applianceWattage, hour_usage: applianceHourUse, usage_date: applianceUsageDate}),
+      body: JSON.stringify({name: applianceName, wattage: applianceWattage, hour_usage: applianceHourUse, usage_date: applianceUsageDate, user_id: userID}),
     });
 
     const data = await response.json();
@@ -100,11 +101,17 @@ if(addApplianceForm){
 }
 
 // Set new electricity price
+const electricityPrice = document.getElementById("electricity-price");
+
 function SetElectricityPrice(){
   const electricityPriceInput = document.getElementById("electricity-price-input");
-  var price = electricityPriceInput.value ? electricityPriceInput.value : 0.15;
+  var price = electricityPriceInput.value ? electricityPriceInput.valueAsNumber : 0.15;
   sessionStorage.setItem("electricity_price", price);
-  console.log(`electricityPriceInput: ${price}`);
+  electricityPriceInput.value = "";
+}
+
+function ShowElectricityPrice(a){
+  electricityPrice.innerHTML = `\$${a} per kWh`;
 }
 
 // Get Appliance
@@ -119,34 +126,33 @@ if(getApplianceForm){
     const startDate = document.getElementById("start-date");
     const endDate = document.getElementById("end-date");
     const wattageAverage = document.getElementById("wattage-average");
-    const electricityPrice = document.getElementById("electricity-price");
     const costAverage = document.getElementById("cost-average");
     const dayCostAverage = document.getElementById("day-cost-average");
+
+    // Need to get the ID of the current user
+    const userID = sessionStorage.getItem("userId");
     
     
-    console.log("Submit");
+    // console.log("Submit");
 
     var url = applianceName ? `/api/appliance/${applianceName}` : `api/appliance`;
     if(startDate.value && endDate.value){
       url += `/${startDate.value}/${endDate.value}`;
     }
 
+    url += `/${userID}`;
+
     console.log(url);
 
     const response = await fetch(url);
     const data = await response.json();
-    // if (!data.success) {
-    //   console.error("Unable to get appliance");
-    //   return;
-    // }
+    // if (!data.success) return;
 
-    // Need to get the ID of the current user
-    const userID = sessionStorage.getItem("userId");
+
 
     // Get the electricity price of the current user
-    const electricity_price = sessionStorage.getItem("electricity_price");
-    electricityPrice.innerHTML = electricity_price;
-    console.log(`userID: ${userID}\nelectricityPrice: ${electricity_price}`);
+    const storedElectricityPrice = sessionStorage.getItem("electricity_price");
+    ShowElectricityPrice(storedElectricityPrice);
 
     // Variables for calculating cost average
     hours = 0;
@@ -168,10 +174,10 @@ if(getApplianceForm){
     }
 
     wattAvg = Math.round(wattageSum / appCount);
-    wattageAverage.innerHTML = `${wattAvg.toString()} W`;
-    calc = (hours * (wattAvg * 0.001) * electricity_price);
-    costAverage.innerHTML = `\$${calc.toFixed(2)}`;
-    dayCostAverage.innerHTML = `\$${(calc/numDays).toFixed(2)}/day`;
+    wattageAverage.innerHTML = data.length > 0 ? `${wattAvg.toString()} W` : "Data not found";
+    calc = (hours * (wattAvg * 0.001) * storedElectricityPrice);
+    costAverage.innerHTML = data.length > 0 ? `\$${calc.toFixed(2)}` : "Data not found";
+    dayCostAverage.innerHTML = data.length > 0 ? `\$${(calc/numDays).toFixed(2)}/day` : "Data not found";
 
     console.log("Success");
   }
