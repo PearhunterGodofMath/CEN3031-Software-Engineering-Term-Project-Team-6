@@ -146,45 +146,96 @@ if(getApplianceForm){
     }
 
     url += `/${userID}`;
+    // console.log(url);
 
-    console.log(url);
+    // const response = await fetch(url);
+    // const data = await response.json();
 
-    const response = await fetch(url);
-    const data = await response.json();
-    // if (!data.success) return;
+    // Request for previous data
+    const previousDelta = document.getElementById("previous-delta");
+    var weekUrl = applianceName ? `/api/appliance/${applianceName}` : `api/appliance`;
+    
+    if(startDate.value && endDate.value){
+      dateDiff = startDate.valueAsNumber - endDate.valueAsNumber;
+      startDateObj = Date(startDate.value);
+      startDateObj.setDate(startDateObj.getDate()-dateDiff);
 
+      endDateObj = Date(endDate.value);
+      endDateObj.setDate(endDateObj.getDate() - dateDiff);
 
-
-    // Get the electricity price of the current user
-    const storedElectricityPrice = sessionStorage.getItem("electricity_price");
-    ShowElectricityPrice(storedElectricityPrice);
-
-    // Variables for calculating cost average
-    hours = 0;
-    wattageSum = 0;
-    wattAvg = 0;
-    numDays = 0;
-    appCount = data.length;
-
-    applianceList.innerHTML = "";
-    wattageAverage.innerHTML = "";
-    for(const d of data){
-      const li = document.createElement("li");
-      li.innerHTML=`<span>${d.name}, ${d.wattage}, ${d.hour_usage}, ${d.usage_date}</span>`;
-
-      applianceList.appendChild(li);
-      wattageSum += d.wattage;
-      hours += d.hour_usage;
-      numDays++;
+      weekUrl += `/${startDateObj.toString()}/${endDateObj.toString()}`;
     }
 
-    wattAvg = Math.round(wattageSum / appCount);
-    wattageAverage.innerHTML = data.length > 0 ? `${wattAvg.toString()} W` : "Data not found";
-    calc = (hours * (wattAvg * 0.001) * storedElectricityPrice);
-    costAverage.innerHTML = data.length > 0 ? `\$${calc.toFixed(2)}` : "Data not found";
-    dayCostAverage.innerHTML = data.length > 0 ? `\$${(calc/numDays).toFixed(2)}/day` : "Data not found";
+    weekUrl += `/${userID}`;
+    // const weekResponse = await fetch(weekUrl);
+    // const weekData = await response.json();
 
-    console.log("Success");
+    Promise.all([fetch(url), fetch(weekUrl)])
+    .then(function(responses){
+      // if (!data.success) return;
+      return Promise.all(responses.map(function(response){
+        return response.json();
+      }));
+    })
+    .then(function(data){
+      // Get the electricity price of the current user
+      const storedElectricityPrice = sessionStorage.getItem("electricity_price");
+      ShowElectricityPrice(storedElectricityPrice);
+
+      // Variables for calculating cost average
+      hours = 0;
+      wattageSum = 0;
+      wattAvg = 0;
+      numDays = 0;
+      appCount = data.length;
+
+      applianceList.innerHTML = "";
+      wattageAverage.innerHTML = "";
+      for(const d of data[0]){
+        const li = document.createElement("li");
+        li.innerHTML=`<span>${d.name}, ${d.wattage}, ${d.hour_usage}, ${d.usage_date}</span>`;
+
+        applianceList.appendChild(li);
+        wattageSum += d.wattage;
+        hours += d.hour_usage;
+        numDays++;
+      }
+
+      wattAvg = Math.round(wattageSum / appCount);
+      wattageAverage.innerHTML = data.length > 0 ? `${wattAvg.toString()} W` : "Data not found";
+      calc = (hours * (wattAvg * 0.001) * storedElectricityPrice);
+      costAverage.innerHTML = data.length > 0 ? `\$${calc.toFixed(2)}` : "Data not found";
+      dayCostAverage.innerHTML = data.length > 0 ? `\$${(calc/numDays).toFixed(2)}/day` : "Data not found";
+
+      // Get summary of changes
+      // Wattage values need to be compared to previous week and previous month
+      // Get the earliest date range and then subtract 7 days from that, then calculate a week from that new start range
+          
+
+      weekWattageSum = 0;
+      weekWattAvg = 0;
+      weekHours = 0;
+      weekNumDays = 0;
+      weekCalc = 0;
+      weekAppCount = data[1].length;
+
+      for(const d of data[1]){
+        weekWattageSum += d.wattage;
+        weekHours += d.hour_usage;
+        weekNumDays++;
+      }
+
+      weekWattAvg = Math.round(weekWattageSum / weekAppCount);
+      // wattageAverage.innerHTML = data.length > 0 ? `${wattAvg.toString()} W` : "Data not found";
+      weekCalc = (weekHours * (weekWattAvg * 0.001) * storedElectricityPrice);
+      // costAverage.innerHTML = data.length > 0 ? `\$${calc.toFixed(2)}` : "Data not found";
+      // dayCostAverage.innerHTML = data.length > 0 ? `\$${(calc/numDays).toFixed(2)}/day` : "Data not found";
+      difference = calc - weekCalc;
+      previousDelta.innerHTML = difference;
+      console.log("Success");
+    });
+
+    
   }
 }
 
