@@ -136,9 +136,6 @@ if(getApplianceForm){
 
     // Need to get the ID of the current user
     const userID = sessionStorage.getItem("userId");
-    
-    
-    // console.log("Submit");
 
     var url = applianceName ? `/api/appliance/${applianceName}` : `api/appliance`;
     if(startDate.value && endDate.value){
@@ -146,33 +143,43 @@ if(getApplianceForm){
     }
 
     url += `/${userID}`;
-    // console.log(url);
-
-    // const response = await fetch(url);
-    // const data = await response.json();
 
     // Request for previous data
     const previousDelta = document.getElementById("previous-delta");
     var weekUrl = applianceName ? `/api/appliance/${applianceName}` : `api/appliance`;
     
+    daysDiff = 0;
     if(startDate.value && endDate.value){
-      dateDiff = startDate.valueAsNumber - endDate.valueAsNumber;
-      startDateObj = Date(startDate.value);
-      startDateObj.setDate(startDateObj.getDate()-dateDiff);
+      startDateObj = new Date(startDate.value);
+      endDateObj = new Date(endDate.value);
+      dateDiff = endDateObj-startDateObj;
+      daysDiff = dateDiff/(24*3600*1000);
+      console.log(`datediff: ${daysDiff}`);
+      
+      timezoneOffset = startDateObj.getTimezoneOffset();
+      newStartDate = new Date((startDateObj.setDate(startDateObj.getDate() - daysDiff)) - (timezoneOffset*60*1000));
+      newEndDate = new Date((endDateObj.setDate(endDateObj.getDate() - daysDiff))- (timezoneOffset*60*1000));
+      console.log(`newStartDate: ${newStartDate}`);
+      console.log(`newEndDate: ${newEndDate}`);
+      
+      startString = newStartDate.toISOString().split('T')[0];
+      endString = newEndDate.toISOString().split('T')[0];
+      console.log(`startString: ${startString}`);
+      console.log(`endString: ${endString}`);
+      
+      startDateObj.setDate(startString);
+      endDateObj.setDate(endString);
 
-      endDateObj = Date(endDate.value);
-      endDateObj.setDate(endDateObj.getDate() - dateDiff);
-
-      weekUrl += `/${startDateObj.toString()}/${endDateObj.toString()}`;
+      weekUrl += `/${startString}/${endString}`;
     }
 
     weekUrl += `/${userID}`;
-    // const weekResponse = await fetch(weekUrl);
-    // const weekData = await response.json();
+    console.log(`url: ${url}`);
+    console.log(`weekUrl: ${weekUrl}`);
+
 
     Promise.all([fetch(url), fetch(weekUrl)])
     .then(function(responses){
-      // if (!data.success) return;
       return Promise.all(responses.map(function(response){
         return response.json();
       }));
@@ -208,10 +215,7 @@ if(getApplianceForm){
       dayCostAverage.innerHTML = data.length > 0 ? `\$${(calc/numDays).toFixed(2)}/day` : "Data not found";
 
       // Get summary of changes
-      // Wattage values need to be compared to previous week and previous month
-      // Get the earliest date range and then subtract 7 days from that, then calculate a week from that new start range
-          
-
+      // Wattage values need to be compared to previous time range        
       weekWattageSum = 0;
       weekWattAvg = 0;
       weekHours = 0;
@@ -226,12 +230,14 @@ if(getApplianceForm){
       }
 
       weekWattAvg = Math.round(weekWattageSum / weekAppCount);
-      // wattageAverage.innerHTML = data.length > 0 ? `${wattAvg.toString()} W` : "Data not found";
       weekCalc = (weekHours * (weekWattAvg * 0.001) * storedElectricityPrice);
-      // costAverage.innerHTML = data.length > 0 ? `\$${calc.toFixed(2)}` : "Data not found";
-      // dayCostAverage.innerHTML = data.length > 0 ? `\$${(calc/numDays).toFixed(2)}/day` : "Data not found";
       difference = calc - weekCalc;
-      previousDelta.innerHTML = difference;
+      if(difference){
+        previousDelta.innerHTML = `DRA is \$<span style="color: ${difference > 0 ? "red" : "green"}; font-weight: bold;">${Math.abs(difference.toFixed(2))} ${difference > 0 ? "higher" : "lower"}</span> than previous ${daysDiff} days.`;
+      }
+      else{
+        previousDelta.innerHTML = "Data unavaiable";
+      }
       console.log("Success");
     });
 

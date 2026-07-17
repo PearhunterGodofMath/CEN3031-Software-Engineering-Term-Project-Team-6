@@ -93,7 +93,7 @@ app.get("/api/appliance/:user_id", async (req, res) => {
 });
 
 // Get specific appliance info
-app.get("/api/appliance/:name:/user_id", async (req, res) => {
+app.get("/api/appliance/:name/:user_id", async (req, res) => {
   const appliances = await db.all("SELECT * FROM appliance WHERE name = ? AND user_id = ?", req.params.name, req.params.user_id);
   res.json(appliances);
 });
@@ -105,7 +105,7 @@ app.get("/api/appliance/:start_date/:end_date/:user_id", async (req, res) => {
 });
 
 // Get SPECIFIC appliance info within date range
-app.get("/api/appliance/:name/:start_date/:end_date:/user_id", async (req, res) => {
+app.get("/api/appliance/:name/:start_date/:end_date/:user_id", async (req, res) => {
   const appliances = await db.all("SELECT * FROM appliance WHERE name = ? AND user_id = ? AND usage_date BETWEEN ? AND ?", req.params.name, req.params.user_id, req.params.start_date, req.params.end_date);
   res.json(appliances);
 });
