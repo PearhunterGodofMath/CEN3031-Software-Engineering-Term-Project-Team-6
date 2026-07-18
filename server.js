@@ -111,8 +111,8 @@ app.get("/api/appliance/:name/:start_date/:end_date/:user_id", async (req, res) 
 });
 
 // Delete appliance
-app.delete("/api/appliance/:name", async (req, res) => {
-  await db.run("DELETE FROM appliance WHERE name = ?", req.params.name);
+app.delete("/api/appliance/:name/:date/:user_id", async (req, res) => {
+  await db.run("DELETE FROM appliance WHERE name = ? AND usage_date = ? AND user_id = ?", req.params.name, req.params.date, req.params.user_id);
   res.json({ ok: true });
 });
 

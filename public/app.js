@@ -121,11 +121,7 @@ function ShowElectricityPrice(a){
 
 // Get Appliance
 const getApplianceForm = document.getElementById("get-appliance-form");
-
-if(getApplianceForm){
-  getApplianceForm.onsubmit = async(e) => {
-    e.preventDefault();
-
+async function Load(){
     const applianceName = document.getElementById("name").value;
     const applianceList = document.getElementById("appliance-list");
     const startDate = document.getElementById("start-date");
@@ -200,8 +196,10 @@ if(getApplianceForm){
       wattageAverage.innerHTML = "";
       for(const d of data[0]){
         const li = document.createElement("li");
-        li.innerHTML=`<span>${d.name}, ${d.wattage}, ${d.hour_usage}, ${d.usage_date}</span>`;
+        li.innerHTML=`<span>${d.name}, ${d.wattage}, ${d.hour_usage}, ${d.usage_date}</span>
+        <button class="deleteAppliance">Delete</button>`;
 
+        li.querySelector(".deleteAppliance").onclick = () => DeleteAppliance(d.name, d.usage_date, userID);
         applianceList.appendChild(li);
         wattageSum += d.wattage;
         hours += d.hour_usage;
@@ -212,7 +210,7 @@ if(getApplianceForm){
       wattageAverage.innerHTML = data.length > 0 ? `${wattAvg.toString()} W` : "Data not found";
       calc = (hours * (wattAvg * 0.001) * storedElectricityPrice);
       costAverage.innerHTML = data.length > 0 ? `\$${calc.toFixed(2)}` : "Data not found";
-      dayCostAverage.innerHTML = data.length > 0 ? `\$${(calc/numDays).toFixed(2)}/day` : "Data not found";
+      dayCostAverage.innerHTML = data.length > 0 ? `\$${(calc/(numDays > 0 ? numDays : 1)).toFixed(2)}/day` : "Data not found";
 
       // Get summary of changes
       // Wattage values need to be compared to previous time range        
@@ -240,21 +238,30 @@ if(getApplianceForm){
       }
       console.log("Success");
     });
+}
 
-    
+if(getApplianceForm){
+  getApplianceForm.onsubmit = async(e) => {
+    e.preventDefault();
+    Load();
   }
+}
+
+async function DeleteAppliance(name, date, userID){
+  url = `/api/appliance/${name}/${date}/${userID}`;
+  await fetch(url, { method: "DELETE" });
+  Load();
+  console.log(`Delete ${name}, ${date}, ${userID}`);
 }
 
 // Clear Appliance Table
 async function ClearApplianceTable(){
   await fetch(`/api/appliance/`, { method: "DELETE" });
-  load();
   console.log("Clear appliance table");
 }
 
 // Clear Users Table
 async function ClearUsersTable(){
   await fetch(`/api/users`, { method: "DELETE" });
-  load();
   console.log("Clear user table");
 }
