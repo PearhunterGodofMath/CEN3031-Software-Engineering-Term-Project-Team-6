@@ -28,21 +28,26 @@
       <p id="electricity-price"></p>
     </div>
       <div style="display: flex; gap: 30px; flex-wrap: wrap;">
-      <input type="number" id="electricity-price-input" placeholder="Set electricity price:">
-      <button id="electricity-price-btn" onclick="SetElectricityPrice()">Submit</button>
+      <input type="number" id="electricity-price-input" placeholder="New price:" style="width: 50%;">
+      <button id="electricity-price-btn" onclick="SetElectricityPrice()" style="width: auto;">Submit</button>
     </div>
-    <div style="display: flex; gap: 30px;">
-      <p>Wattage Average: </p>
-      <p id="wattage-average"></p>
+    <div style="display: flex; gap: 30px; height: 30px;">
+      <p style="flex-grow: 1; text-align: left;">Wattage Average: </p>
+      <p id="wattage-average" style="font-weight: bold; text-align: right;"></p>
     </div>
-    <div style="display: flex; gap: 30px;">
-      <p>Date Range Cost Average: </p>
-      <p id="cost-average"></p>
+    <div style="display: flex; gap: 30px; height: 30px;">
+      <p style="flex-grow: 1; text-align: left;">Date Range Average (DRA): </p>
+      <p id="cost-average" style="font-weight: bold; text-align: right;"></p>
     </div>
-    <div style="display: flex; gap: 30px;">
-      <p>Daily Cost Average: </p>
-      <p id="day-cost-average"></p>
+    <div style="display: flex; gap: 30px; height: 30px;">
+      <p style="flex-grow: 1; text-align: left;">Daily Cost Average (DCA): </p>
+      <p id="day-cost-average" style="font-weight: bold; text-align: right;"></p>
     </div>
+    <hr/>
+    <div style="display: flex; min-height: 30px; justify-content: center;">
+      <p id="previous-delta"></p>
+    </div>
+    <hr/>
     <ul id="appliance-list"></ul>
     
   </div>
