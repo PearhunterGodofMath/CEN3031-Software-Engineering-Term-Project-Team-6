@@ -62,6 +62,28 @@ if (loginForm) {
   };
 }
 
+// Delete Account
+const deleteAccountForm = document.getElementById("delete-account-form");
+
+if (deleteAccountForm) {
+  deleteAccountForm.onsubmit = async (e) => {
+    e.preventDefault();
+    const userId = sessionStorage.getItem("userId");
+
+    async function deleteAccount() {
+      const response = await fetch(`/api/users/${userId}`, {
+        method: "DELETE",
+      });
+      if (response.ok) {
+        alert("Account deleted successfully!");
+        sessionStorage.removeItem("userId");
+        window.location.href = "loginScreen.html";
+      }
+    }
+    await deleteAccount();
+  };
+}
+
 // Add Appliance
 const addApplianceForm = document.getElementById("add-appliance-form");
 

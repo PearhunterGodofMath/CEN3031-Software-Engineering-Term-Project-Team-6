@@ -62,9 +62,15 @@ app.post("/api/login", async (req, res) => {
 
 // Delete a user
 app.delete("/api/users/:id", async (req, res) => {
-  await db.run("DELETE FROM users WHERE id = ?", req.params.id);
-  res.json({ ok: true });
+  const { id } = req.params;
+  await db.run('DELETE FROM users WHERE id = ?', id);
+  res.json({ message: 'Account deleted' });
 });
+
+// app.delete("/api/users/:id", async (req, res) => {
+//   await db.run("DELETE FROM users WHERE id = ?", req.params.id);
+//   res.json({ ok: true });
+// });
 
 // Set electricity price
 app.put("/api/users/:id/:price", async (req, res) => {
