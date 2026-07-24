@@ -116,6 +116,12 @@ app.delete("/api/appliance/:name/:date/:user_id", async (req, res) => {
   res.json({ ok: true });
 });
 
+// Delete all user appliances
+app.delete("/api/appliance/:user_id", async (req, res) => {
+  await db.run("DELETE FROM appliance WHERE user_id = ?", req.params.user_id);
+  res.json({ ok: true });
+});
+
 // Clear all entries from appliance table
 app.delete("/api/appliance/", async (req, res) => {
   await db.run("DROP TABLE IF EXISTS appliance");

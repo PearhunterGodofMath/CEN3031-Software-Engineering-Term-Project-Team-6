@@ -273,6 +273,17 @@ async function DeleteAppliance(name, date, userID){
   console.log(`Delete ${name}, ${date}, ${userID}`);
 }
 
+async function DeleteUserAccount(){
+  DeleteAllUserAppliances();
+}
+
+async function DeleteAllUserAppliances(){
+  const userID = sessionStorage.getItem("userId");
+  url = `/api/appliance/${userID}`;
+  await fetch(url, { method: "DELETE" });
+  console.log("Delete all user appliances");
+}
+
 // Clear Appliance Table
 async function ClearApplianceTable(){
   await fetch(`/api/appliance/`, { method: "DELETE" });
