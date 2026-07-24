@@ -6,8 +6,14 @@
 </head>
 
 <body>
-  <div class="login-container">
-    <h1>UtiliSee</h1>
+  <div class="utilities-container">
+    <div class="utilities-header">
+      <button type="button" class="settings-button" onclick="window.location.href='accountSettings.html'">
+        Settings
+      </button>
+    </div>
+
+    <img src="images/logo.png" alt="UtiliSee Logo" class="logo">
     <p>Get Appliance Information</p>
 
     <form id="get-appliance-form">
@@ -44,11 +50,25 @@
       <p id="day-cost-average" style="font-weight: bold; text-align: right;"></p>
     </div>
     <hr/>
-    <div style="display: flex; min-height: 30px; justify-content: center;">
-      <p id="previous-delta"></p>
-    </div>
+    <button type="button" onclick="window.location.href='addAppliance.html'">
+      Add Appliance
+    </button>
     <hr/>
-    <ul id="appliance-list"></ul>
+    <table id="appliance-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Wattage</th>
+          <th>Hourly Usage</th>
+          <th>Usage Date</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+
+      <tbody id="appliance-table-body">
+      </tbody>
+    </table>
+
     
   </div>
   <script src="app.js"></script>

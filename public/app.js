@@ -9,8 +9,10 @@ if (createAccountForm) {
     const confirmPassword = document.getElementById("confirm-password").value;
 
     if (password !== confirmPassword) {
-      return alert("Passwords do not match");
+      document.getElementById("create-account-message").textContent = "Passwords do not match";
+      return;
     }
+
 
     const response = await fetch("/api/users", {
       method: "POST",
@@ -24,9 +26,13 @@ if (createAccountForm) {
       return alert(data.message);
     }
 
-    alert("Account created successfully!");
+    const message = document.getElementById("create-account-message");
+    message.textContent = "Account created successfully!";
 
-    window.location.href = "loginScreen.html"; // Redirect to login page after successful account creation
+    setTimeout(() => {
+      window.location.href = "loginScreen.html";
+    }, 3000);
+
   };
 }
 
@@ -123,7 +129,7 @@ function ShowElectricityPrice(a){
 const getApplianceForm = document.getElementById("get-appliance-form");
 async function Load(){
     const applianceName = document.getElementById("name").value;
-    const applianceList = document.getElementById("appliance-list");
+    const applianceTableBody = document.getElementById("appliance-table-body");
     const startDate = document.getElementById("start-date");
     const endDate = document.getElementById("end-date");
     const wattageAverage = document.getElementById("wattage-average");
@@ -192,19 +198,32 @@ async function Load(){
       numDays = 0;
       appCount = data.length;
 
-      applianceList.innerHTML = "";
+      applianceTableBody.innerHTML = "";
       wattageAverage.innerHTML = "";
-      for(const d of data[0]){
-        const li = document.createElement("li");
-        li.innerHTML=`<span>${d.name}, ${d.wattage}, ${d.hour_usage}, ${d.usage_date}</span>
-        <button class="deleteAppliance">Delete</button>`;
 
-        li.querySelector(".deleteAppliance").onclick = () => DeleteAppliance(d.name, d.usage_date, userID);
-        applianceList.appendChild(li);
+      for(const d of data[0]){
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+          <td>${d.name}</td>
+          <td>${d.wattage} W</td>
+          <td>${d.hour_usage} hours</td>
+          <td>${d.usage_date}</td>
+          <td>
+            <button class="deleteAppliance">Delete</button>
+          </td>
+        `;
+
+        row.querySelector(".deleteAppliance").onclick = () =>
+          DeleteAppliance(d.name, d.usage_date, userID);
+
+        applianceTableBody.appendChild(row);
+
         wattageSum += d.wattage;
         hours += d.hour_usage;
         numDays++;
       }
+
 
       wattAvg = Math.round(wattageSum / appCount);
       wattageAverage.innerHTML = data.length > 0 ? `${wattAvg.toString()} W` : "Data not found";
