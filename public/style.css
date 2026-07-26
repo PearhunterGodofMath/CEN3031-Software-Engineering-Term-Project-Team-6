@@ -126,6 +126,20 @@ button:hover {
   margin-top: 20px;
 }
 
+.settings-actions {
+  margin-top: 10px;
+}
+
+.settings-message {
+  min-height: 1.2em;
+  margin-top: 0;
+  color: #444;
+}
+
+.danger-button {
+  background-color: #c0392b;
+}
+
 .utilities-header {
   display: flex;
   justify-content: flex-end;
