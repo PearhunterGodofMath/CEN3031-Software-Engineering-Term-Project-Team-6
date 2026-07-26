@@ -60,10 +60,30 @@ app.post("/api/login", async (req, res) => {
   res.json({ success: true, message: "Welcome!", userId: user.id, electricityPrice: user.electricity_price});
 });
 
+// Change password
+app.put("/api/users/:id/password", async (req, res) => {
+  const { id } = req.params;
+  const { currentPassword, newPassword } = req.body;
+
+  const user = await db.get("SELECT password FROM users WHERE id = ?", id);
+
+  if (!user) {
+    return res.status(404).json({ success: false, message: "Account not found" });
+  }
+
+  if (user.password !== currentPassword) {
+    return res.status(401).json({ success: false, message: "Current password is incorrect" });
+  }
+
+  await db.run("UPDATE users SET password = ? WHERE id = ?", newPassword, id);
+  res.json({ success: true, message: "Password updated" });
+});
+
 // Delete a user
 app.delete("/api/users/:id", async (req, res) => {
-  await db.run("DELETE FROM users WHERE id = ?", req.params.id);
-  res.json({ ok: true });
+  const { id } = req.params;
+  await db.run('DELETE FROM users WHERE id = ?', id);
+  res.json({ message: 'Account deleted' });
 });
 
 // Set electricity price

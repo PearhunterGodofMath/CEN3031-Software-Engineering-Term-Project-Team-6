@@ -68,6 +68,88 @@ if (loginForm) {
   };
 }
 
+// Change Password
+const changePasswordButton = document.getElementById("change-password-button");
+
+if (changePasswordButton) {
+  changePasswordButton.onclick = async () => {
+    const userId = sessionStorage.getItem("userId");
+
+    if (!userId) {
+      window.location.href = "loginScreen.html";
+      return;
+    }
+
+    const currentPassword = window.prompt("Enter your current password:");
+    if (currentPassword === null) {
+      return;
+    }
+
+    const newPassword = window.prompt("Enter your new password:");
+    if (newPassword === null) {
+      return;
+    }
+
+    const confirmPassword = window.prompt("Confirm your new password:");
+    if (confirmPassword === null) {
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      alert("New passwords do not match");
+      return;
+    }
+
+    const response = await fetch(`/api/users/${userId}/password`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ currentPassword, newPassword }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert(data.message || "Unable to update password");
+      return;
+    }
+
+    alert("Password updated successfully");
+  };
+}
+
+// Delete Account
+const deleteAccountButton = document.getElementById("delete-account-button");
+
+if (deleteAccountButton) {
+  deleteAccountButton.onclick = async () => {
+    const userId = sessionStorage.getItem("userId");
+
+    if (!userId) {
+      window.location.href = "loginScreen.html";
+      return;
+    }
+
+    const confirmed = window.confirm("Are you sure you want to delete your account? This cannot be undone.");
+    if (!confirmed) {
+      return;
+    }
+
+    const response = await fetch(`/api/users/${userId}`, {
+      method: "DELETE",
+    });
+
+    if (response.ok) {
+      alert("Account deleted successfully!");
+      sessionStorage.removeItem("userId");
+      sessionStorage.removeItem("electricity_price");
+      window.location.href = "loginScreen.html";
+      return;
+    }
+
+    alert("Unable to delete account");
+  };
+}
+
 // Add Appliance
 const addApplianceForm = document.getElementById("add-appliance-form");
 
