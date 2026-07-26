@@ -151,6 +151,19 @@ button:hover {
   padding: 10px 20px;
 }
 
+.change-password-button {
+  background-color: #f1c40f;
+  color: white;
+}
+
+.delete-account-button {
+  background-color: red;
+}
+
+.logout-button {
+  background-color: #3498db;
+}
+
 .deleteAppliance{
   background-color: red;
 }
