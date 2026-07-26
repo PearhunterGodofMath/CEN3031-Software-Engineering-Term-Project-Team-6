@@ -278,7 +278,7 @@ async function Load(){
       wattageSum = 0;
       wattAvg = 0;
       numDays = 0;
-      appCount = data.length;
+      appCount = data[0].length;
 
       applianceTableBody.innerHTML = "";
       wattageAverage.innerHTML = "";
@@ -307,6 +307,7 @@ async function Load(){
       }
 
 
+      console.log(`appCount = ${appCount}\nwattageSum = ${wattageSum}`);
       wattAvg = Math.round(wattageSum / appCount);
       wattageAverage.innerHTML = data.length > 0 ? `${wattAvg.toString()} W` : "Data not found";
       calc = (hours * (wattAvg * 0.001) * storedElectricityPrice);
@@ -332,10 +333,10 @@ async function Load(){
       weekCalc = (weekHours * (weekWattAvg * 0.001) * storedElectricityPrice);
       difference = calc - weekCalc;
       if(difference){
-        previousDelta.innerHTML = `DRA is \$<span style="color: ${difference > 0 ? "red" : "green"}; font-weight: bold;">${Math.abs(difference.toFixed(2))} ${difference > 0 ? "higher" : "lower"}</span> than previous ${daysDiff} days.`;
+        previousDelta.innerHTML = `DRA is <span style="color: ${difference > 0 ? "red" : "green"}; font-weight: bold;">\$${Math.abs(difference.toFixed(2))} ${difference > 0 ? "higher" : "lower"}</span> than previous ${daysDiff} day${daysDiff > 1 ? "s" : ""}.`;
       }
       else{
-        previousDelta.innerHTML = "Data unavaiable";
+        previousDelta.innerHTML = "";
       }
       console.log("Success");
     });
