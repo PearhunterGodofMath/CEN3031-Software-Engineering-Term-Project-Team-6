@@ -1,31 +1,26 @@
-# Users CRUD — teaching app
+# UTILISEE -- A utility cost tracking program
 
-A minimal full-stack app: **HTML + CSS + JS** frontend, **Express + SQLite** backend.
+**HTML + CSS + JS** frontend, **Express + SQLite** backend.
 
-## Run it
-
+## How to Run
 ```bash
 npm install
 npm start
 ```
 
-Then open http://localhost:3000
+Then open http://localhost:3000/loginScreen.html
 
-## What's inside
+## How to Use
+- Create an account
+- Login with credentials
+- Click the "Add New Appliance" button
+- Insert Appliance information and click "Add Appliance"
+- The Utility Table will update with the new data
 
-| File                | Concept            |
-| ------------------- | ------------------ |
-| `public/index.html` | structure (HTML)   |
-| `public/style.css`  | styling (CSS)      |
-| `public/app.js`     | browser JS + fetch |
-| `server.js`         | Express + SQLite   |
+## The Utility Table
+- The Utility Table contains various information about a user's Appliances
+  - The user can search for Appliances by name or within a certain date range, and the Utility Table will calculate information based on those filters
+- A Summary Delta is provided based on the given time range:
+- Example: If the user selects a time range of 5 days, the Summary Delta will provide information comparing that data to the previous 5 days. Likewise for _n_ days.
 
-## API
 
-| Method | Route               | Does                  |
-| ------ | ------------------- | --------------------- |
-| GET    | `/api/users`        | get all users         |
-| GET    | `/api/users/:course`| get users by course   |
-| POST   | `/api/users`        | create a user         |
-| PUT    | `/api/users/:id`    | edit a user's course  |
-| DELETE | `/api/users/:id`    | delete a user         |
