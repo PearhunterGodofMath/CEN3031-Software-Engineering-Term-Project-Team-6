@@ -69,34 +69,25 @@ if (loginForm) {
 }
 
 // Change Password
-const changePasswordButton = document.getElementById("change-password-button");
+const changePasswordForm = document.getElementById("change-password-form");
 
-if (changePasswordButton) {
-  changePasswordButton.onclick = async () => {
+if (changePasswordForm) {
+  changePasswordForm.onsubmit = async (e) => {
+    e.preventDefault();
+
     const userId = sessionStorage.getItem("userId");
+    const currentPassword = document.getElementById("current-password").value;
+    const newPassword = document.getElementById("new-password").value;
+    const confirmPassword = document.getElementById("confirm-new-password").value;
+    const message = document.getElementById("change-password-message");
 
     if (!userId) {
       window.location.href = "loginScreen.html";
       return;
     }
 
-    const currentPassword = window.prompt("Enter your current password:");
-    if (currentPassword === null) {
-      return;
-    }
-
-    const newPassword = window.prompt("Enter your new password:");
-    if (newPassword === null) {
-      return;
-    }
-
-    const confirmPassword = window.prompt("Confirm your new password:");
-    if (confirmPassword === null) {
-      return;
-    }
-
     if (newPassword !== confirmPassword) {
-      alert("New passwords do not match");
+      message.textContent = "New passwords do not match";
       return;
     }
 
@@ -109,11 +100,12 @@ if (changePasswordButton) {
     const data = await response.json();
 
     if (!response.ok) {
-      alert(data.message || "Unable to update password");
+      message.textContent = data.message || "Unable to update password";
       return;
     }
 
-    alert("Password updated successfully");
+    message.textContent = "Password updated successfully";
+    changePasswordForm.reset();
   };
 }
 
