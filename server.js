@@ -27,7 +27,7 @@ await db.exec(`CREATE TABLE IF NOT EXISTS appliance (
 // --- App setup ---
 const app = express();
 app.use(express.json());        // read JSON request bodies
-app.use(express.static("public")); // serve the HTML/CSS/JS
+app.use(express.static("public", { index: "loginScreen.html" })); // serve the HTML/CSS/JS
 
 // Get all users
 app.get("/api/users", async (req, res) => {
