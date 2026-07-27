@@ -281,7 +281,7 @@ async function Load(){
         row.innerHTML = `
           <td>${d.name}</td>
           <td>${d.wattage} W</td>
-          <td>${d.hour_usage} hours</td>
+          <td>${d.hour_usage} hour${d.hour_usage > 1 ? "s" : ""}</td>
           <td>${d.usage_date}</td>
           <td>
             <button class="deleteAppliance">Delete</button>
