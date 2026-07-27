@@ -8,7 +8,7 @@ npm install
 npm start
 ```
 
-Then open http://localhost:3000/loginScreen.html
+Then right click on http://localhost:3000/ to open the program.
 
 ## How to Use
 - Create an account
