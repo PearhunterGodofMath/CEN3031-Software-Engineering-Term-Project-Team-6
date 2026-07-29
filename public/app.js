@@ -230,6 +230,7 @@ async function Load(){
       endDateObj = new Date(endDate.value);
       dateDiff = endDateObj-startDateObj;
       daysDiff = dateDiff/(24*3600*1000);
+      daysDiff += 1;
       console.log(`datediff: ${daysDiff}`);
       
       timezoneOffset = startDateObj.getTimezoneOffset();
@@ -274,6 +275,7 @@ async function Load(){
 
       applianceTableBody.innerHTML = "";
       wattageAverage.innerHTML = "";
+      var dates = new Set()
 
       for(const d of data[0]){
         const row = document.createElement("tr");
@@ -295,8 +297,11 @@ async function Load(){
 
         wattageSum += d.wattage;
         hours += d.hour_usage;
-        numDays++;
+        dates.add(d.usage_date);
       }
+
+      numDays = dates.size;
+      console.log(`numDays = ${numDays}`);
 
 
       console.log(`appCount = ${appCount}\nwattageSum = ${wattageSum}`);
