@@ -159,6 +159,10 @@ if(addApplianceForm){
       return;
     }
     const applianceHourUse = document.getElementById("hour-usage");
+    if(applianceHourUse.value < 0) {
+      invalidMenuMessage.innerHTML = "Hour usage must be a positive integer, data not saved";
+      return;
+    }
     const applianceUsageDate = document.getElementById("usage-date");
 
     console.log("Submit");
