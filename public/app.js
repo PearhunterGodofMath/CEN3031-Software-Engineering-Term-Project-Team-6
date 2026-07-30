@@ -192,15 +192,28 @@ if(addApplianceForm){
 // Set new electricity price
 const electricityPrice = document.getElementById("electricity-price");
 
-function SetElectricityPrice(){
+async function SetElectricityPrice(){
   const electricityPriceInput = document.getElementById("electricity-price-input");
   var price = electricityPriceInput.value ? electricityPriceInput.valueAsNumber : 0.15;
   sessionStorage.setItem("electricity_price", price);
+  
+  url = `/api/users/${sessionStorage.getItem("userId")}/${price}`;
+  await fetch(url, { method: "PUT" });
+  
   electricityPriceInput.value = "";
+  Load();
 }
 
-function ShowElectricityPrice(a){
-  electricityPrice.innerHTML = `\$${a} per kWh`;
+async function ShowElectricityPrice(){
+  url = `/api/users/id/${sessionStorage.getItem("userId")}`;
+  console.log(`sessionID: ${sessionStorage.getItem("userId")}`);
+  const res = await fetch(url);
+  const data = await res.json();
+  const price = data.electricityPrice.electricity_price;
+  console.log(price);
+
+  sessionStorage.setItem("electricity_price", price);
+  electricityPrice.innerHTML = `\$${price} per kWh`;
 }
 
 // Get Appliance
@@ -235,18 +248,18 @@ async function Load(){
       dateDiff = endDateObj-startDateObj;
       daysDiff = dateDiff/(24*3600*1000);
       daysDiff += 1;
-      console.log(`datediff: ${daysDiff}`);
+      // console.log(`datediff: ${daysDiff}`);
       
       timezoneOffset = startDateObj.getTimezoneOffset();
       newStartDate = new Date((startDateObj.setDate(startDateObj.getDate() - daysDiff)) - (timezoneOffset*60*1000));
       newEndDate = new Date((endDateObj.setDate(endDateObj.getDate() - daysDiff))- (timezoneOffset*60*1000));
-      console.log(`newStartDate: ${newStartDate}`);
-      console.log(`newEndDate: ${newEndDate}`);
+      // console.log(`newStartDate: ${newStartDate}`);
+      // console.log(`newEndDate: ${newEndDate}`);
       
       startString = newStartDate.toISOString().split('T')[0];
       endString = newEndDate.toISOString().split('T')[0];
-      console.log(`startString: ${startString}`);
-      console.log(`endString: ${endString}`);
+      // console.log(`startString: ${startString}`);
+      // console.log(`endString: ${endString}`);
       
       startDateObj.setDate(startString);
       endDateObj.setDate(endString);
@@ -255,8 +268,8 @@ async function Load(){
     }
 
     weekUrl += `/${userID}`;
-    console.log(`url: ${url}`);
-    console.log(`weekUrl: ${weekUrl}`);
+    // console.log(`url: ${url}`);
+    // console.log(`weekUrl: ${weekUrl}`);
 
 
     Promise.all([fetch(url), fetch(weekUrl)])
@@ -267,8 +280,8 @@ async function Load(){
     })
     .then(function(data){
       // Get the electricity price of the current user
+      ShowElectricityPrice();
       const storedElectricityPrice = sessionStorage.getItem("electricity_price");
-      ShowElectricityPrice(storedElectricityPrice);
 
       // Variables for calculating cost average
       hours = 0;
@@ -305,10 +318,10 @@ async function Load(){
       }
 
       numDays = dates.size;
-      console.log(`numDays = ${numDays}`);
+      // console.log(`numDays = ${numDays}`);
 
 
-      console.log(`appCount = ${appCount}\nwattageSum = ${wattageSum}`);
+      // console.log(`appCount = ${appCount}\nwattageSum = ${wattageSum}`);
       wattAvg = Math.round(wattageSum / appCount);
       wattageAverage.innerHTML = data.length > 0 ? `${wattAvg.toString()} W` : "Data not found";
       calc = (hours * (wattAvg * 0.001) * storedElectricityPrice);
