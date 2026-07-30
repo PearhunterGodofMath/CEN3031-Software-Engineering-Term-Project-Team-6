@@ -4,6 +4,7 @@ const createAccountForm = document.getElementById("create-account-form");
 if (createAccountForm) {
   createAccountForm.onsubmit = async (e) => {
     e.preventDefault();
+    // Read the inputs values and prompt if the passwords do not match
     const username = document.getElementById("username").value;
     const password = document.getElementById("password").value;
     const confirmPassword = document.getElementById("confirm-password").value;
@@ -26,6 +27,7 @@ if (createAccountForm) {
       return alert(data.message);
     }
 
+    // Show account created successfully and then send back to log in screen
     const message = document.getElementById("create-account-message");
     message.textContent = "Account created successfully!";
 
@@ -43,6 +45,8 @@ if (loginForm) {
 
   loginForm.onsubmit = async (e) => {
     e.preventDefault();
+
+    // Login credentials stored in storage, if failed then error message
     const username = document.getElementById("login-username").value;
     const password = document.getElementById("login-password").value;
 
@@ -75,6 +79,7 @@ if (changePasswordForm) {
   changePasswordForm.onsubmit = async (e) => {
     e.preventDefault();
 
+    // Requires a active user and to match new passwords before update
     const userId = sessionStorage.getItem("userId");
     const currentPassword = document.getElementById("current-password").value;
     const newPassword = document.getElementById("new-password").value;
@@ -121,6 +126,7 @@ if (deleteAccountButton) {
       return;
     }
 
+    // Ask for confirmation because it will permanently delete account
     const confirmed = window.confirm("Are you sure you want to delete your account? This cannot be undone.");
     if (!confirmed) {
       return;
@@ -149,6 +155,7 @@ if(addApplianceForm){
   addApplianceForm.onsubmit = async(e) => {
     e.preventDefault();
     
+    // Collect appliance details and reject invalid wattage values
     const userID = sessionStorage.getItem("userId");
     const invalidMenuMessage = document.getElementById("invalid-value-message");
 
@@ -202,6 +209,7 @@ function ShowElectricityPrice(a){
 // Get Appliance
 const getApplianceForm = document.getElementById("get-appliance-form");
 async function Load(){
+  // Build the current and previous requests from inputs for appliance table
     const applianceName = document.getElementById("name").value;
     const applianceTableBody = document.getElementById("appliance-table-body");
     const startDate = document.getElementById("start-date");
@@ -215,6 +223,7 @@ async function Load(){
 
     var url = applianceName ? `/api/appliance/${applianceName}` : `api/appliance`;
     if(startDate.value && endDate.value){
+      // Date range
       url += `/${startDate.value}/${endDate.value}`;
     }
 
@@ -226,6 +235,7 @@ async function Load(){
     
     daysDiff = 0;
     if(startDate.value && endDate.value){
+      // Shift the date range back by the same number of days for comparison
       startDateObj = new Date(startDate.value);
       endDateObj = new Date(endDate.value);
       dateDiff = endDateObj-startDateObj;
@@ -262,6 +272,7 @@ async function Load(){
       }));
     })
     .then(function(data){
+      // Gather data and compute summary
       // Get the electricity price of the current user
       const storedElectricityPrice = sessionStorage.getItem("electricity_price");
       ShowElectricityPrice(storedElectricityPrice);
@@ -280,6 +291,7 @@ async function Load(){
       for(const d of data[0]){
         const row = document.createElement("tr");
 
+        // table row creation per appliance
         row.innerHTML = `
           <td>${d.name}</td>
           <td>${d.wattage} W</td>
@@ -329,6 +341,7 @@ async function Load(){
       weekWattAvg = Math.round(weekWattageSum / weekAppCount);
       weekCalc = (weekHours * (weekWattAvg * 0.001) * storedElectricityPrice);
       difference = calc - weekCalc;
+      // Display how the current range compares with the previous range
       if(difference){
         previousDelta.innerHTML = `DRA is <span style="color: ${difference > 0 ? "red" : "green"}; font-weight: bold;">\$${Math.abs(difference.toFixed(2))} ${difference > 0 ? "higher" : "lower"}</span> than previous ${daysDiff} day${daysDiff > 1 ? "s" : ""}.`;
       }
@@ -347,6 +360,7 @@ if(getApplianceForm){
 }
 
 async function DeleteAppliance(name, date, userID){
+  // Delete appliance function and update table
   url = `/api/appliance/${name}/${date}/${userID}`;
   await fetch(url, { method: "DELETE" });
   Load();
