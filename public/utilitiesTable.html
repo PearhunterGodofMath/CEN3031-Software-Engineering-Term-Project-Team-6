@@ -16,6 +16,7 @@
     <img src="images/logo.png" alt="UtiliSee Logo" class="logo">
     <p>Get Appliance Information</p>
 
+    <!-- Form used to filter appliances by name and date range -->
     <form id="get-appliance-form">
     <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: right; gap: 25px;">
       <p>Search Appliance: </p>
@@ -29,11 +30,13 @@
     <button type="submit">Show Appliance Table</button> 
     </form>
     <br>
+
+    <!-- Display and update the current electricity price -->
     <div style="display: flex; gap: 30px;">
       <p>Current electricity price: </p>
       <p id="electricity-price"></p>
     </div>
-      <div style="display: flex; gap: 30px; flex-wrap: wrap;">
+    <div style="display: flex; gap: 30px; flex-wrap: wrap;">
       <input type="number" id="electricity-price-input" placeholder="New price:" style="width: 10%;">
       <button id="electricity-price-btn" onclick="SetElectricityPrice()" style="width: auto;">Submit</button>
     </div>
@@ -53,10 +56,14 @@
       <p id="previous-delta" style="font-weight: bold; text-align: left;"></p>
     </div>
     <hr/>
+
+    <!-- Navigate to the page for adding a new appliance -->
     <button type="button" style="background-color: #1b531d;" onclick="window.location.href='addAppliance.html'">
       Add New Appliance
     </button>
     <hr/>
+
+    <!-- Table populated dynamically with appliance records -->
     <table id="appliance-table">
       <thead>
         <tr>

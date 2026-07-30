@@ -10,6 +10,7 @@
     <img src="images/logo.png" alt="UtiliSee Logo" class="logo">
     <p>Appliance</p>
 
+    <!-- Form for entering a new appliance and its usage details -->
     <form id="add-appliance-form">
     <div style="display: flex; align-items: center; justify-content: right; gap: 25px;">
       <p>Name: </p>
@@ -32,11 +33,14 @@
     </div>
     
     <br>
+
+    <!-- Add the appliance or return to the utilities page -->
     <button type="submit">Add Appliance</button> 
     <button type="button" onclick="window.location.href='utilitiesTable.html'">
       Back to Utilities
     </button>
 
+    <!-- Displays validation errors if the user enters invalid data -->
     <p id="invalid-value-message"></p>
     </form>
     
