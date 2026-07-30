@@ -92,6 +92,14 @@ app.put("/api/users/:id/:price", async (req, res) => {
   res.json({ ok: true });
 });
 
+// Get electricity price
+app.get("/api/users/id/:id", async (req, res) => {
+  // console.log(req.params.id);
+  const electricityPrice = await db.get("SELECT electricity_price FROM users WHERE id = ?", req.params.id);
+  // console.log(electricityPrice);
+  res.json({ electricityPrice });
+});
+
 // Add appliance
 app.post("/api/appliance", async (req, res) => {
   console.log(req.body);

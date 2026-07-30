@@ -155,17 +155,23 @@ if(addApplianceForm){
   addApplianceForm.onsubmit = async(e) => {
     e.preventDefault();
     
+    // Assigns all HTML elements for getting data values
     // Collect appliance details and reject invalid wattage values
     const userID = sessionStorage.getItem("userId");
     const invalidMenuMessage = document.getElementById("invalid-value-message");
 
     const applianceName = document.getElementById("name");
+    // Only positive values are allowed
     const applianceWattage = document.getElementById("wattage");
     if(applianceWattage.value < 0) {
       invalidMenuMessage.innerHTML = "Wattage must be a positive integer, data not saved";
       return;
     }
     const applianceHourUse = document.getElementById("hour-usage");
+    if(applianceHourUse.value < 0) {
+      invalidMenuMessage.innerHTML = "Hour usage must be a positive integer, data not saved";
+      return;
+    }
     const applianceUsageDate = document.getElementById("usage-date");
 
     console.log("Submit");
@@ -195,15 +201,30 @@ if(addApplianceForm){
 // Set new electricity price
 const electricityPrice = document.getElementById("electricity-price");
 
-function SetElectricityPrice(){
+async function SetElectricityPrice(){
+  // Get value from input field and then save it to both sessionStorage and the user's database
   const electricityPriceInput = document.getElementById("electricity-price-input");
   var price = electricityPriceInput.value ? electricityPriceInput.valueAsNumber : 0.15;
   sessionStorage.setItem("electricity_price", price);
+  
+  url = `/api/users/${sessionStorage.getItem("userId")}/${price}`;
+  await fetch(url, { method: "PUT" });
+  
   electricityPriceInput.value = "";
+  Load();
 }
 
-function ShowElectricityPrice(a){
-  electricityPrice.innerHTML = `\$${a} per kWh`;
+async function ShowElectricityPrice(){
+  // Need to get user's current electricity costs and return that value
+  url = `/api/users/id/${sessionStorage.getItem("userId")}`;
+  console.log(`sessionID: ${sessionStorage.getItem("userId")}`);
+  const res = await fetch(url);
+  const data = await res.json();
+  const price = data.electricityPrice.electricity_price;
+  console.log(price);
+
+  sessionStorage.setItem("electricity_price", price);
+  electricityPrice.innerHTML = `\$${price} per kWh`;
 }
 
 // Get Appliance
@@ -233,6 +254,8 @@ async function Load(){
     const previousDelta = document.getElementById("previous-delta");
     var weekUrl = applianceName ? `/api/appliance/${applianceName}` : `api/appliance`;
     
+    // This is where we're calculating how many days prior to compare to the currently selected date range
+    // Needed to convert the date input values to Date objects and then do calculations from there
     daysDiff = 0;
     if(startDate.value && endDate.value){
       // Shift the date range back by the same number of days for comparison
@@ -241,18 +264,14 @@ async function Load(){
       dateDiff = endDateObj-startDateObj;
       daysDiff = dateDiff/(24*3600*1000);
       daysDiff += 1;
-      console.log(`datediff: ${daysDiff}`);
       
+      // This was needed for proper timezone conversion, because otherwise, the dates would be off by like a day or so
       timezoneOffset = startDateObj.getTimezoneOffset();
       newStartDate = new Date((startDateObj.setDate(startDateObj.getDate() - daysDiff)) - (timezoneOffset*60*1000));
       newEndDate = new Date((endDateObj.setDate(endDateObj.getDate() - daysDiff))- (timezoneOffset*60*1000));
-      console.log(`newStartDate: ${newStartDate}`);
-      console.log(`newEndDate: ${newEndDate}`);
       
       startString = newStartDate.toISOString().split('T')[0];
       endString = newEndDate.toISOString().split('T')[0];
-      console.log(`startString: ${startString}`);
-      console.log(`endString: ${endString}`);
       
       startDateObj.setDate(startString);
       endDateObj.setDate(endString);
@@ -261,10 +280,9 @@ async function Load(){
     }
 
     weekUrl += `/${userID}`;
-    console.log(`url: ${url}`);
-    console.log(`weekUrl: ${weekUrl}`);
 
 
+    // Multi-fetch
     Promise.all([fetch(url), fetch(weekUrl)])
     .then(function(responses){
       return Promise.all(responses.map(function(response){
@@ -274,8 +292,8 @@ async function Load(){
     .then(function(data){
       // Gather data and compute summary
       // Get the electricity price of the current user
+      ShowElectricityPrice();
       const storedElectricityPrice = sessionStorage.getItem("electricity_price");
-      ShowElectricityPrice(storedElectricityPrice);
 
       // Variables for calculating cost average
       hours = 0;
@@ -291,6 +309,7 @@ async function Load(){
       for(const d of data[0]){
         const row = document.createElement("tr");
 
+        // Fill out the data for each row and assign the "Delete" function to each one
         // table row creation per appliance
         row.innerHTML = `
           <td>${d.name}</td>
@@ -313,10 +332,8 @@ async function Load(){
       }
 
       numDays = dates.size;
-      console.log(`numDays = ${numDays}`);
 
-
-      console.log(`appCount = ${appCount}\nwattageSum = ${wattageSum}`);
+      // Show all of the calculations in the utility table
       wattAvg = Math.round(wattageSum / appCount);
       wattageAverage.innerHTML = data.length > 0 ? `${wattAvg.toString()} W` : "Data not found";
       calc = (hours * (wattAvg * 0.001) * storedElectricityPrice);
