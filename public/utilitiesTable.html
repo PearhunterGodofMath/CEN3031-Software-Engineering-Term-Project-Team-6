@@ -19,11 +19,11 @@
     <!-- Form used to filter appliances by name and date range -->
     <form id="get-appliance-form">
     <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: right; gap: 25px;">
-      <p>Search Appliance: </p>
+      <label for="name">Search Appliance: </label>
       <input type="text" id="name" style="height: 10px;" placeholder="Appliance name">
-      <p>Start Date: </p>
+      <label for="start-date">Start Date: </label>
       <input type="date" id="start-date">
-      <p>End Date: </p>
+      <label for="end-date">End Date: </label>
       <input type="date" id="end-date">
     </div>
     
@@ -33,7 +33,7 @@
 
     <!-- Display and update the current electricity price -->
     <div style="display: flex; gap: 30px;">
-      <p>Current electricity price: </p>
+      <label for="electricity-price">Current electricity price: </label>
       <p id="electricity-price"></p>
     </div>
     <div style="display: flex; gap: 30px; flex-wrap: wrap;">
